@@ -1,0 +1,17 @@
+<ActionBar title="Grid"></ActionBar>
+
+<GridLayout rows="*,100" columns="*">
+  <GridLayout row="0" col="0" columns="*" rows="*" backgroundColor="lightgray">
+    <RadCartesianChart>
+        <LinearAxis tkCartesianHorizontalAxis [minimum]="xlim[0] - xres" [maximum]="xlim[1] + xres" [majorStep]="xres"></LinearAxis>
+        <LinearAxis tkCartesianVerticalAxis [minimum]="ylim[0] - yres" [maximum]="ylim[1] + yres" [majorStep]="yres"></LinearAxis>
+
+        <ScatterSeries tkCartesianSeries [items]="plotItems" xProperty="xval" yProperty="yval"></ScatterSeries>
+        <ScatterSeries tkCartesianSeries [items]="plotCurrent" xProperty="xval" yProperty="yval"></ScatterSeries>
+
+    </RadCartesianChart>
+  </GridLayout>
+  <GridLayout row="1" col="0" rows="*" columns="*">
+    <Button text="Redo test with same settings" (tap)="redoExperiment()"></Button>
+  </GridLayout>
+</GridLayout>

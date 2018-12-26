@@ -1,0 +1,48 @@
+.message {
+  margin: auto;
+  text-align: center;
+}
+
+.correct {
+  color: rgb(76, 217, 100);
+  font-weight: bold;
+}
+
+.wrong {
+  color: rgb(255, 59, 48);
+  font-weight: bold;
+}
+
+GridLayout {
+  margin-left: 30;
+  margin-right: 30;
+  padding-bottom: 15;
+  background-color: white;
+}
+
+.answerButton {
+  background-color: lightgray;
+  text-align: center;
+  border-radius: 10px;
+  height: 100;
+  width: 100;
+  font-size: 20;
+  font-weight: bold;
+}
+
+.highlight {
+  border-width: 8px;
+  border-style: solid;
+  border-color: rgb(255,149,0);
+}
+
+.playButton {
+  background-color: white;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
+  text-align: center;
+  border-radius: 10px;
+  height: 50;
+  width: 200;
+}

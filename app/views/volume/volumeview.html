@@ -1,0 +1,8 @@
+<ActionBar title="Device volume"></ActionBar>
+
+<StackLayout orientation="vertical">
+  <Label class="p-x-30 p-y-15" text="The main volume of the device has to be set to a fixed level before starting. You MUST NOT adjust the volume during the whole experiment." textWrap="true"></Label>
+  <Label class="p-x-30 p-y-15" *ngIf="!enableContinue" [text]="'The main volume is now ' + volume + ', please turn ' + adjust + ' the volume.'" textWrap="true"></Label>
+  <Label class="p-x-30 p-y-15" *ngIf="enableContinue" [text]="'The main volume is now correctly set at ' + volume + ', please continue to the experiments.'" textWrap="true"></Label>
+  <Button [nsRouterLink]="['/experimentlist']" clearHistory="true" text="Continue" class="submit-button" [isEnabled]="enableContinue"></Button>
+</StackLayout>

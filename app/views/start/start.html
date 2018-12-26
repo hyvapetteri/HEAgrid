@@ -1,0 +1,9 @@
+<ActionBar title="HEA listening experiment">
+  <ActionItem ios.position="right" ios.systemIcon="9" (tap)="showActionSheet()"></ActionItem>
+</ActionBar>
+
+<StackLayout orientation="vertical">
+  <Label text="Name" [ngClass]="{invalid: (submitted && name_invalid)}"></Label>
+  <TextField hint="Write your name" [(ngModel)]="name" [ngClass]="{invalid: (submitted && name_invalid)}" autocorrect="false"></TextField>
+  <Button (tap)="startEvaluation()" text="Start" class="submit-button"></Button>
+</StackLayout>

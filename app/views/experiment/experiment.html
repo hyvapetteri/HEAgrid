@@ -1,0 +1,15 @@
+<ActionBar title="Experiment, trial {{trialNumber}}">
+  <ActionItem (tap)="showActionSheet()" ios.systemIcon="9" ios.position="right"></ActionItem>
+</ActionBar>
+
+<DockLayout stretchLastChild="true" dock="top">
+<GridLayout [columns]="grid_coldef" rows="*,*,*" width="90%" verticalAlignment="top" dock="Top">
+  <Label class="message" [ngClass]="{correct: (answered && isCorrect), wrong: (answered && !isCorrect)}" [text]="instructionText" row="0" col="0" [colSpan]="n_alternatives"></Label>
+  <ng-container *ngFor="let i of alternative_ids">
+  <Button (tap)="evaluateAnswer(i)" class="answerButton" [class.highlight]="highlightedButton == i" [isEnabled]="enableAnswer" [text]="alternative_labels.charAt(i)" row="1" [col]="i"></Button>
+  </ng-container>
+  <Button class="playButton" [text]="playButtonText" (tap)="handlePlayButton()" row="2" col="0" [colSpan]="alternative_ids.length"></Button>
+</GridLayout>
+<!--<Button text="Show grid" [nsRouterLink]="['/gridplot', 0]" class="btn" dock="bottom"></Button>
+<Button text="Verify audio" [nsRouterLink]="['/verifyaudio']" class="btn" dock="bottom"></Button>-->
+</DockLayout>

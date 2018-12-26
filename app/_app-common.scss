@@ -1,0 +1,21 @@
+@import '~nativescript-theme-core/scss/light';
+@import '~nativescript-theme-core/scss/index';
+
+.list-group-item.list-group-item-heading {
+  background-color: $ab-background;
+  Label {
+    @extend .h5;
+    @extend .text-uppercase;
+    vertical-align: bottom;
+  }
+}
+
+Page {
+  background-color: $white;
+  font-size: 15;
+}
+
+TextField {
+  padding: 10;
+  font-size: 13;
+}

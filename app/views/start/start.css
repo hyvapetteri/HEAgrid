@@ -1,0 +1,31 @@
+StackLayout {
+  margin-left: 30;
+  margin-right: 30;
+  margin-top: 60;
+  padding-bottom: 15;
+  background-color: white;
+}
+Image {
+  margin-top: 5;
+  margin-bottom: 20;
+}
+Button, TextField, Label {
+  margin-left: 16;
+  margin-right: 16;
+  margin-bottom: 10;
+}
+.submit-button {
+  background-color: rgb(0, 122, 255);
+  color: white;
+  margin-top: 20;
+  border-radius: 10px;
+  height: 50;
+}
+
+TextField.invalid {
+  border: 5px solid rgb(255, 59, 48);
+}
+
+Label.invalid {
+  color: rgb(255, 59, 48);
+}

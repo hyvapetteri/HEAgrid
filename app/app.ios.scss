@@ -1,0 +1,19 @@
+@import 'app-common';
+@import '~nativescript-theme-core/scss/platforms/index.ios';
+
+
+TextField {
+  border-width: 1;
+  border-color: black;
+}
+
+.playButton {
+  background-color: white;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
+  text-align: center;
+  border-radius: 10px;
+  height: 50;
+  width: 200;
+}

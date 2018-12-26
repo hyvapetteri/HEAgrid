@@ -1,0 +1,24 @@
+<ActionBar title="HEA listening experiment">
+  <ActionItem ios.position="right" ios.systemIcon="9" (tap)="showActionSheet()"></ActionItem>
+</ActionBar>
+
+<ListView [items]="listItems" (itemTap)="handleTap($event)" class="list-group" [itemTemplateSelector]="templateSelector" separatorColor="white">
+  <ng-template nsTemplateKey="header" let-header="item">
+    <StackLayout orientation="vertical" class="list-group-item list-group-item-heading">
+      <Label [text]="header.text" textWrap="true" isUserInteractionEnabled="false"></Label>
+    </StackLayout>
+  </ng-template>
+
+  <ng-template nsTemplateKey="test" let-frequency="item">
+    <StackLayout orientation="vertical" class="list-group-item">
+      <Label [text]="frequency.text" class="list-group-item-text"></Label>
+    </StackLayout>
+  </ng-template>
+
+  <ng-template nsTemplateKey="history" let-exp="item">
+    <StackLayout orientation="vertical" class="list-group-item">
+      <Label [text]="exp.text" class="list-group-item-text"></Label>
+    </StackLayout>
+  </ng-template>
+
+</ListView>

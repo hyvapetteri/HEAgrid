@@ -1,0 +1,10 @@
+.playButton {
+  background-color: white;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
+  text-align: center;
+  border-radius: 10px;
+  height: 50;
+  width: 200;
+}

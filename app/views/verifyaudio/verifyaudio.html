@@ -1,0 +1,21 @@
+<ActionBar title="Verify audio levels"></ActionBar>
+
+<StackLayout orientation="vertical">
+  <Label text="Choose stimulus:" class="p-15 h2" textWrap="true"></Label>
+  <Button text="Background reference" (tap)="chooseStimulus(stimOptions.Background, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.Background), 'btn-primary': (pickedStimulus == stimOptions.Background)}" textWrap="true"></Button>
+  <Button text="Background at threshold" (tap)="chooseStimulus(stimOptions.BackgroundTH, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.BackgroundTH), 'btn-primary': (pickedStimulus == stimOptions.BackgroundTH)}" textWrap="true"></Button>
+  <Button text="Tone reference (grid upper left corner)" (tap)="chooseStimulus(stimOptions.Tone, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.Tone), 'btn-primary': (pickedStimulus == stimOptions.Tone)}" textWrap="true"></Button>
+  <Button text="Tone reference at threshold" (tap)="chooseStimulus(stimOptions.ToneTH, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.ToneTH), 'btn-primary': (pickedStimulus == stimOptions.ToneTH)}"textWrap="true"></Button>
+  <Button text="Target stimulus at grid point" (tap)="chooseStimulus(stimOptions.GridPointTarget, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.GridPointTarget), 'btn-primary': (pickedStimulus == stimOptions.GridPointTarget)}"textWrap="true"></Button>
+  <Button text="Nontarget stimulus at grid point" (tap)="chooseStimulus(stimOptions.GridPointNontarget, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.GridPointNontarget), 'btn-primary': (pickedStimulus == stimOptions.GridPointNontarget)}" textWrap="true"></Button>
+  <StackLayout class="input-field">
+    <TextField [(ngModel)]="xval" autocorrect="false" class="m-x-30 input input-border"></TextField>
+    <Label class="h3 text-center" [text]="'x coordinate (' + xlim[0] + ' ... ' + xlim[1] + ')'"></Label>
+  </StackLayout>
+  <StackLayout class="input-field">
+    <TextField [(ngModel)]="yval" autocorrect="false" class="m-x-30 input input-border"></TextField>
+    <Label class="h3 text-center" [text]="'y coordinate (' + ylim[0] + ' ... ' + ylim[1] + ')'"></Label>
+  </StackLayout>
+  <Button [text]="playButtonText" [isEnabled]="enablePlay" (tap)="playStimulus()" class="playButton"></Button>
+  <Label [text]="volume"></Label>
+</StackLayout>
