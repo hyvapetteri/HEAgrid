@@ -94,11 +94,32 @@ export class ExperimentPage {
     //   yres: 1
     // });
 
+    let targ_key = "";
+    if (this.freq == 1000) {
+      targ_key = "spl_tone1k";
+    } else if (this.freq == 2000) {
+      targ_key = "spl_tone2k";
+    } else if (this.freq == 4000) {
+      targ_key = "spl_tone4k";
+    }
+
+    let targ_ref_level;
+    if (appSettings.hasKey(targ_key)) {
+      targ_ref_level = appSettings.getNumber(targ_key);
+    } else {
+      this.showError("Calibrate levels first!").then(() => {
+        this.routerExtensions.navigate(['calibration']);
+      });
+    }
+
+    let min_level = targ_ref_level - 20;
+    let grid_y_min = Math.min(min_level, tone_level_range)
+
     let parameter_grid = new ParamGrid({
       xmin: 0,
       xmax: env.maxGap,
       xres: 0.05,
-      ymin: env.maxTargetLevel_dB - tone_level_range,
+      ymin: env.maxTargetLevel_dB - grid_y_min,
       ymax: env.maxTargetLevel_dB,
       yres: 3
     });
@@ -114,16 +135,30 @@ export class ExperimentPage {
       n_step: env.experiment.grid_nstep
     });
 
+    let constrainedgrid = basegrid.getGrid().getSubGridByValues({xmin:0, xmax:0, ymin:ylim[0], ymax:ylim[1]});
+    let sparseconstrainedgrid = constrainedgrid.getDownsampledGrid(1,2);
+
     let grid = new PhasedGridTracker();
     let ylim = basegrid.getGrid().getYlim();
+
     grid.addPhase(new BasicGridTracker({
-      g: basegrid.getGrid().getSubGridByValues({xmin:0, xmax:0, ymin:ylim[0], ymax:ylim[1]}),
+      g: sparseconstrainedgrid,
+      m_up: env.experiment.grid_mup,
+      n_down: env.experiment.grid_ndown,
+      n_revs: 2,
+      n_step: 100
+    }));
+
+    grid.addPhase(new BasicGridTracker({
+      g: constrainedgrid,
       m_up: env.experiment.grid_mup,
       n_down: env.experiment.grid_ndown,
       n_revs: 6,
       n_step: 100
     }));
+
     grid.addPhase(basegrid);
+
     grid.initialize(0, ylim[0] + 40);
     console.log('Grid initialized');
     this.currentExperiment.grid = grid;

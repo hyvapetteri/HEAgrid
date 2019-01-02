@@ -508,6 +508,18 @@ export class ParamGrid {
     return this.getSubGridByIndices({xidx_min: ll_coord[0], xidx_max: ur_coord[0], yidx_min: ll_coord[1], yidx_max: ur_coord[1]});
   }
 
+  getDownsampledGrid(decimate_x:number, decimate_y:number):ParamGrid {
+
+    return new ParamGrid({
+      xmin: this.xlim[0],
+      xmax: this.xlim[1],
+      ymin: this.ylim[0],
+      ymax: this.ylim[1],
+      xres: decimate_x * this.xresolution,
+      yres: decimate_y * this.yresolution
+    });
+  }
+
   getSubGridByIndices(params: {xidx_min:number, xidx_max:number, yidx_min:number, yidx_max:number}):ParamGrid {
     let ll_values = this.getGridValues(params.xidx_min, params.yidx_min);
     let ur_values = this.getGridValues(params.xidx_max, params.yidx_max);
