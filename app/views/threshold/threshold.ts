@@ -129,7 +129,8 @@ export class ThresholdPage {
       maskerLevel: 0,
       channelOptions: ChannelOptions.Diotic,
       settingsPath: this.audioPath,
-      debug: true
+      debug: true,
+      compensate: true
     }
     this.player = new GridPlayer();
 

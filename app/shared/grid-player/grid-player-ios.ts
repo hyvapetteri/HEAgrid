@@ -31,6 +31,7 @@ export interface GridPlayerOptions {
   settingsPath: string;
 
   debug?: boolean;
+  compensate: boolean;
 }
 
 export class GridPlayer extends NSObject {
@@ -70,6 +71,7 @@ export class GridPlayer extends NSObject {
 
   private _stimbuffer: AVAudioPCMBuffer;
 
+  private _compensate: boolean;
 
   public initialize(options: GridPlayerOptions):Promise<any> {
     this._freq = options.targetFrequency;
@@ -83,6 +85,7 @@ export class GridPlayer extends NSObject {
 
     this._debug = !!options.debug;
     this._window = !!options.window ? options.window : true;
+    this._compensate = options.compensate;
 
     this._completeCallback = options.completeCallback;
     this._errorCallback = options.errorCallback;
@@ -322,7 +325,7 @@ export class GridPlayer extends NSObject {
         bs_masker_win = this._dioticMasker;
       } else {
         let masker = new Float32Array(nsamples_masker);
-        let rnd = util.initRandn(0, 1); // rms = 1
+        let rnd = util.initRandn(0, util.db2a(-24));
         for (let i = 0; i < nsamples_masker; i++) {
           masker[i] = rnd();
         }
@@ -356,16 +359,20 @@ export class GridPlayer extends NSObject {
       }
 
       // filtering & setting level
-      let bs_masker_win_norm;
-      if (ear === "left") {
-        bs_masker_win_norm = util.calfilter(this._leftFilter, 6 + (this._leftCalLevel - this._rightCalLevel),
-          this._maskerLevel + bw_corr_dB, bs_masker_win);
-      } else if (ear === "right") {
-        bs_masker_win_norm = util.calfilter(this._rightFilter, 6,
-          this._maskerLevel + bw_corr_dB, bs_masker_win);
-      }
+      if (this._compensate) {
+        let bs_masker_win_norm;
+        if (ear === "left") {
+          bs_masker_win_norm = util.calfilter(this._leftFilter, 6 + (this._leftCalLevel - this._rightCalLevel),
+            this._maskerLevel + bw_corr_dB, bs_masker_win);
+        } else if (ear === "right") {
+          bs_masker_win_norm = util.calfilter(this._rightFilter, 6,
+            this._maskerLevel + bw_corr_dB, bs_masker_win);
+        }
 
-      masker_output.set(bs_masker_win_norm);
+        masker_output.set(bs_masker_win_norm);
+      } else {
+        masker_output.set(bs_masker_win);
+      }
       this.log('masker abs max: ' + util.max(util.abs(masker_output)));
     }
 
@@ -389,15 +396,19 @@ export class GridPlayer extends NSObject {
         this._dioticTarget = target_win.slice();
       }
 
-      let target_norm;
-      if (ear == "left") {
-        target_norm = util.calfilter(this._leftFilter, 6 + (this._leftCalLevel - this._rightCalLevel),
-          yval, target_win);
-      } else if (ear == "right") {
-        target_norm = util.calfilter(this._rightFilter, 6,
-          yval, target_win);
+      if (this._compensate) {
+        let target_norm;
+        if (ear == "left") {
+          target_norm = util.calfilter(this._leftFilter, 6 + (this._leftCalLevel - this._rightCalLevel),
+            yval, target_win);
+        } else if (ear == "right") {
+          target_norm = util.calfilter(this._rightFilter, 6,
+            yval, target_win);
+        }
+        target_output.set(target_norm);
+      } else {
+        masker_output.set(target_win);
       }
-      target_output.set(target_norm);
     }
 
     let output = new Float32Array(nsamples);

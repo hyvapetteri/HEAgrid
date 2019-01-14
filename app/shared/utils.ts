@@ -311,6 +311,8 @@ export function calfilter(headphoneFilter:Float32Array, calLevel:number,
   // console.log('Output IFFT RMS: ' + rms(output_padded));
 
   let output_norm = setSignalLevel(output, targetLevel - calLevel - fixedAttenuation, false);
+  //let output_norm = setSignalLevel(output, targetLevel - calLevel, false);
+
 
   return output_norm;
 }

@@ -22,6 +22,7 @@
     <Label class="h3 text-center" text="4 kHz tone SPL"></Label>
     <TextField [(ngModel)]="spl_tone4k" autocorrect="false" class="m-x-30 input input-border" keyboardType="number"></TextField>
   </StackLayout>
+  <Switch class="m-15" checked="false" (checkedChange)="onSwitch($event)"></Switch>
   <Button [text]="playButtonText" [isEnabled]="enablePlay" (tap)="playStimulus()" class="playButton"></Button>
   <Button text="Save reference values" (tap)="saveValues()" class="btn p-15"></Button>
 

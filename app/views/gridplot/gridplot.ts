@@ -26,6 +26,7 @@ export class GridPlotPage implements OnInit {
     private xres: number;
     private yres: number;
     private experiment: Experiment;
+    private threshold: number|null;
 
     constructor(private sessionProvider: SessionProvider,
                 private routerExtensions: RouterExtensions,
@@ -71,11 +72,29 @@ export class GridPlotPage implements OnInit {
         //console.log('frequency:' + this.sessionProvider.getCurrentExperiment().testFrequency);
         if (this.experimentId == 0) {
           this.experiment = this.sessionProvider.getCurrentExperiment();
+          this.threshold = null;
         } else {
           let experiments = this.sessionProvider.getExperiments();
           this.experiment = experiments[this.experimentId - 1];
         }
         let grid = this.experiment.grid;
+
+        if (this.experimentId !== 0) {
+          let history = grid.getHistory();
+          let n_avg = 6;
+          let counter_avg = 0;
+          let sum_avg = 0;
+          for (let i = history.length - 1; i >= 0; i--) {
+            if (history[i].reversal) {
+              sum_avg += history[i].yval;
+              counter_avg += 1;
+              if (counter_avg == n_avg) {
+                break;
+              }
+            }
+          }
+          this.threshold = sum_avg / n_avg;
+        }
 
         this._plotItems = new ObservableArray(grid.getHistory());
         this._plotCurrent = new ObservableArray(grid.getStatus());

@@ -95,10 +95,12 @@ export class ExperimentListPage {
       title: 'Send the results',
       message: 'version 0.1',
       cancelButtonText: 'Cancel',
-      actions: ['Send with email', 'Quit']
+      actions: ['Calibrate', 'Send with email', 'Quit']
     }).then((result: string) => {
       console.log(result);
-      if (result == "Quit") {
+      if (result == "Calibrate") {
+        return this.routerExtensions.navigate(['/calibration']);
+      } else if (result == "Quit") {
         this.sessionProvider.resetSession();
         return this.routerExtensions.navigate(['/start'], {clearHistory: true});
       }

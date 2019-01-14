@@ -13,8 +13,10 @@ export const testfrequencies = [
 ];
 
 export const audioPath = "audio";
-export const leftFilterFilename = "InvFilterL.bin";
-export const rightFilterFilename = "InvFilterR.bin";
+//export const leftFilterFilename = "InvFilterL.bin";
+//export const rightFilterFilename = "InvFilterR.bin";
+export const leftFilterFilename = "InvFilter.bin";
+export const rightFilterFilename = "InvFilter.bin";
 export const calLevelsFilename = "calLevels.json";
 
 export const maskerLevel_dB = 76.44;
@@ -32,7 +34,7 @@ export const threshold = {
 }
 
 export const experiment = {
-  n_alternatives: 3,
+  n_alternatives: 2,
   targetDuration_s: 0.3,
   maskerDuration_s: 0.3,
   interstimulusInterval_ms: 300,

@@ -8,6 +8,7 @@ import * as fs from "tns-core-modules/file-system";
 import * as dialogs from "tns-core-modules/ui/dialogs";
 import * as util from "../../shared/utils";
 import * as env from "../../config/environment";
+import { Switch } from "tns-core-modules/ui/switch";
 
 import { GridTracker, GridTrackingStatus, GridDirection, TrialAnswer, ParamGrid } from '../../shared/grid/grid';
 import { GridPlayer, GridPlayerOptions, ChannelOptions } from "../../shared/grid-player/grid-player-ios";
@@ -51,9 +52,13 @@ export class CalibrationPage implements OnInit {
     private spl_tone2k: string;
     private spl_tone4k: string;
 
+    private compensateHeadphones: boolean;
+
     constructor(private sessionProvider: SessionProvider,
                 private routerExtensions: RouterExtensions,
                 private page: Page) {
+
+      this.compensateHeadphones = true;
 
       if (appSettings.hasKey("spl_background")) {
         this.spl_background = appSettings.getNumber("spl_background").toFixed(1);
@@ -165,8 +170,10 @@ export class CalibrationPage implements OnInit {
         errorCallback: (err) => {
           console.log("error while playing: " + err);
         },
-        debug: true
+        debug: true,
+        compensate: this.compensateHeadphones
       };
+
       this.player = new GridPlayer();
 
       let playMasker = false, playTarget = false;
@@ -216,6 +223,15 @@ export class CalibrationPage implements OnInit {
       }).then(() => {
         // pass
       });
+    }
+
+    onSwitch(args) {
+      let sw = <Switch>args.object;
+      if (sw.checked) {
+        this.compensateHeadphones = true;
+      } else {
+        this.compensateHeadphones = false;
+      }
     }
 
 }

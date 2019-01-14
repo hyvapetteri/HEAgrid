@@ -119,7 +119,7 @@ export class ExperimentPage {
       xmin: 0,
       xmax: env.maxGap,
       xres: 0.05,
-      ymin: env.maxTargetLevel_dB - grid_y_min,
+      ymin: env.maxTargetLevel_dB - min_level,
       ymax: env.maxTargetLevel_dB,
       yres: 3
     });
@@ -135,17 +135,17 @@ export class ExperimentPage {
       n_step: env.experiment.grid_nstep
     });
 
-    let constrainedgrid = basegrid.getGrid().getSubGridByValues({xmin:0, xmax:0, ymin:ylim[0], ymax:ylim[1]});
-    let sparseconstrainedgrid = constrainedgrid.getDownsampledGrid(1,2);
-
     let grid = new PhasedGridTracker();
     let ylim = basegrid.getGrid().getYlim();
+
+    let constrainedgrid = basegrid.getGrid().getSubGridByValues({xmin:0, xmax:0, ymin:ylim[0], ymax:ylim[1]});
+    let sparseconstrainedgrid = constrainedgrid.getDownsampledGrid(1,2);
 
     grid.addPhase(new BasicGridTracker({
       g: sparseconstrainedgrid,
       m_up: env.experiment.grid_mup,
       n_down: env.experiment.grid_ndown,
-      n_revs: 2,
+      n_revs: 4,
       n_step: 100
     }));
 
@@ -157,9 +157,10 @@ export class ExperimentPage {
       n_step: 100
     }));
 
-    grid.addPhase(basegrid);
+    //grid.addPhase(basegrid);
 
     grid.initialize(0, ylim[0] + 40);
+    //grid.initialize(0, -6);
     console.log('Grid initialized');
     this.currentExperiment.grid = grid;
 
@@ -195,7 +196,8 @@ export class ExperimentPage {
         settingsPath: this.audioPath,
         completeCallback: args => {
           this._ngZone.run(() => this.soundEnded(i));
-        }
+        },
+        compensate: true
       };
       promises.push(this.players[i].initialize(playerOptions));
     }
@@ -225,6 +227,8 @@ export class ExperimentPage {
       this.logFilePath = fs.path.join(docsPath, logfile);
       console.log('Logging to ' + logfile);
       return this.writeLog('Experiment started, subject ' + this.uid + ', vol ' + this.volume + ', freq ' + this.freq);
+    }).then(() => {
+      return this.writeLog('BG ref level: ' + bg_ref_level + ', target ref level: ' + targ_ref_level + ', target threshold: ' + util.a2db(this.currentExperiment.toneThreshold) + ', masker threshold: ' + util.a2db(this.currentExperiment.noiseThreshold));
     }).then(() => {
       return this.writeLog('trial; gap; level; answer; correct');
     }).catch(err => this.showError(err));

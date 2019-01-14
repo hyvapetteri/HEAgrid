@@ -59,17 +59,4 @@ export class StartPage {
     });
   }
 
-  showActionSheet() {
-    dialogs.action({
-      title: 'Settings',
-      cancelButtonText: 'Cancel',
-      actions: ['Calibrate']
-    }).then((result: string) => {
-      console.log(result);
-      if (result == "Calibrate") {
-        return this.routerExtensions.navigate(['/calibration']);
-      }
-    }).catch(err => console.log(err));
-  }
-
 }

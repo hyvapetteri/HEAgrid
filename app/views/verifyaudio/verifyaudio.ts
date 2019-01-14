@@ -181,7 +181,8 @@ export class VerifyAudioPage implements OnInit {
         errorCallback: (err) => {
           console.log("error while playing: " + err);
         },
-        debug: true
+        debug: true,
+        compensate: true
       };
       this.player = new GridPlayer();
 
