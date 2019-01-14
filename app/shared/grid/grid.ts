@@ -69,7 +69,7 @@ export class PhasedGridTracker implements GridTracker {
     this.started = true;
     this.activeTrackerIdx = 0;
     this._activeTracker = this.trackers[this.activeTrackerIdx];
-    this._activeTracker.initialize(xval, yval, GridDirection.Up);
+    this._activeTracker.initialize(xval, yval, GridDirection.Down);
   }
 
   public updatePosition(ans:TrialAnswer) {

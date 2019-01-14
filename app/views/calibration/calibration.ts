@@ -96,6 +96,9 @@ export class CalibrationPage implements OnInit {
       this.audioSession.addObserverForKeyPathOptionsContext(this.masterVolumeObserver, "outputVolume", NSKeyValueObservingOptions.New, null);
 
       this.page.on("navigatingFrom", (data: EventData) => {
+        if (this.playing) {
+          this.player.dispose();
+        }
         this.audioSession.removeObserverForKeyPath(this.masterVolumeObserver, "outputVolume");
       });
 
@@ -165,7 +168,7 @@ export class CalibrationPage implements OnInit {
         maskerDuration: env.verifyaudio.maskerDuration_s,
         maskerLevel: 0,
         channelOptions: ChannelOptions.Diotic,
-        settingsPath: this.audioPath,
+        settingsPath: fs.knownFolders.documents().path,
         window: false,
         errorCallback: (err) => {
           console.log("error while playing: " + err);

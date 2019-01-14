@@ -116,7 +116,8 @@ export class ThresholdPage {
 
   setup() {
     let appPath = fs.knownFolders.currentApp();
-    this.audioPath = fs.path.join(appPath.path, env.audioPath);
+    //this.audioPath = fs.path.join(appPath.path, env.audioPath);
+    this.audioPath = fs.knownFolders.documents().path;
     console.log(this.audioPath);
 
     //this.player = new TNSPlayer();
@@ -128,7 +129,7 @@ export class ThresholdPage {
       maskerDuration: env.threshold.maskerDuration_s,
       maskerLevel: 0,
       channelOptions: ChannelOptions.Diotic,
-      settingsPath: this.audioPath,
+      settingsPath: fs.knownFolders.documents().path,
       debug: true,
       compensate: true
     }

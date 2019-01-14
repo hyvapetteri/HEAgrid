@@ -6,7 +6,7 @@ import * as fs from "tns-core-modules/file-system";
 import { setTimeout } from "tns-core-modules/timer";
 import * as appSettings from "tns-core-modules/application-settings";
 
-import { SessionProvider, Experiment, ExperimentStatus } from '../../shared/session/session';
+import { SessionProvider, Experiment, ExperimentStatus, ExperimentType } from '../../shared/session/session';
 import { VolumeObserver } from "../../shared/volumeobserver";
 import { RouterExtensions } from 'nativescript-angular/router';
 
@@ -119,7 +119,7 @@ export class ExperimentPage {
       xmin: 0,
       xmax: env.maxGap,
       xres: 0.05,
-      ymin: env.maxTargetLevel_dB - min_level,
+      ymin: env.maxTargetLevel_dB - tone_level_range,
       ymax: env.maxTargetLevel_dB,
       yres: 3
     });
@@ -139,6 +139,9 @@ export class ExperimentPage {
     let ylim = basegrid.getGrid().getYlim();
 
     let constrainedgrid = basegrid.getGrid().getSubGridByValues({xmin:0, xmax:0, ymin:ylim[0], ymax:ylim[1]});
+    if (this.currentExperiment.type === ExperimentType.SingleRunWithGap) {
+      constrainedgrid = basegrid.getGrid().getSubGridByValues({xmin: 0.2, xmax: 0.2, ymin:ylim[0], ymax:ylim[1]});
+    }
     let sparseconstrainedgrid = constrainedgrid.getDownsampledGrid(1,2);
 
     grid.addPhase(new BasicGridTracker({
@@ -157,7 +160,9 @@ export class ExperimentPage {
       n_step: 100
     }));
 
-    //grid.addPhase(basegrid);
+    if (this.currentExperiment.type === ExperimentType.Grid) {
+      grid.addPhase(basegrid);
+    }
 
     grid.initialize(0, ylim[0] + 40);
     //grid.initialize(0, -6);
@@ -166,6 +171,7 @@ export class ExperimentPage {
 
     let appPath = fs.knownFolders.currentApp();
     this.audioPath = fs.path.join(appPath.path, env.audioPath);
+    //this.audioPath = fs.knownFolders.documents().path;
     console.log(this.audioPath);
 
     this.ISI_ms = env.experiment.interstimulusInterval_ms;
@@ -193,7 +199,7 @@ export class ExperimentPage {
         //maskerLevel: util.a2db(this.currentExperiment.noiseThreshold) + env.maskerLevel_dB,
         maskerLevel: env.maskerLevel_dB - bg_ref_level,
         channelOptions: ChannelOptions.Diotic,
-        settingsPath: this.audioPath,
+        settingsPath: fs.knownFolders.documents().path,
         completeCallback: args => {
           this._ngZone.run(() => this.soundEnded(i));
         },

@@ -111,16 +111,35 @@ export class GridPlotPage implements OnInit {
     }
 
     redoExperiment() {
-      let pickedFreq = this.experiment.testFrequency;
-      this.sessionProvider.startExperiment(pickedFreq);
-      let newExperiment = this.sessionProvider.getCurrentExperiment();
-      newExperiment.noiseThreshold = this.experiment.noiseThreshold;
-      newExperiment.toneThreshold = this.experiment.toneThreshold;
+      console.log('Redo experiment')
+      try {
+        let pickedFreq = this.experiment.testFrequency;
+        this.sessionProvider.startExperiment(pickedFreq);
+        let newExperiment = this.sessionProvider.getCurrentExperiment();
+        newExperiment.noiseThreshold = this.experiment.noiseThreshold;
+        newExperiment.toneThreshold = this.experiment.toneThreshold;
+        newExperiment.type = this.experiment.type;
+      } catch (err) {
+        console.log(err);
+      }
 
       return this.routerExtensions.navigate(
         ["/experiment"], {clearHistory: true}
       ).catch(err => {
         console.log(err);
       });
+    }
+
+    showActionSheet() {
+      dialogs.action({
+        title: 'Actions',
+        cancelButtonText: 'Cancel',
+        actions: ['Redo with same settings']
+      }).then((result: string) => {
+        console.log(result);
+        if (result == "Redo with same settings") {
+          return this.redoExperiment();
+        }
+      }).catch(err => console.log(err));
     }
 }

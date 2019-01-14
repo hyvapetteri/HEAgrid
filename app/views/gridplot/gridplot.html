@@ -1,4 +1,6 @@
-<ActionBar title="Grid"></ActionBar>
+<ActionBar title="Grid">
+  <ActionItem ios.position="right" ios.systemIcon="9" (tap)="showActionSheet()"></ActionItem>
+</ActionBar>
 
 <GridLayout rows="*,100" columns="*">
   <GridLayout row="0" col="0" columns="*" rows="*" backgroundColor="lightgray">
@@ -12,7 +14,6 @@
     </RadCartesianChart>
   </GridLayout>
   <GridLayout row="1" col="0" rows="*" columns="*">
-    <Button text="Redo test with same settings" (tap)="redoExperiment()"></Button>
     <Label [text]="threshold"></Label>
   </GridLayout>
 </GridLayout>

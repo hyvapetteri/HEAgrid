@@ -52,12 +52,19 @@ export enum ExperimentStatus {
   Finished = "finished"
 }
 
+export enum ExperimentType {
+  Grid = "grid",
+  SingleRunNoGap = "singlerunnogap",
+  SingleRunWithGap = "sunglerunwithgap"
+}
+
 export class Experiment {
   private _test_frequency: number;
   private _noise_threshold: number;
   private _tone_threshold: number;
   private _grid: GridTracker;
   private _status: ExperimentStatus;
+  private _type: ExperimentType;
 
   constructor(freq:number) {
     this._test_frequency = freq;
@@ -98,6 +105,14 @@ export class Experiment {
 
   set status(s:ExperimentStatus) {
     this._status = s;
+  }
+
+  get type():ExperimentType {
+    return this._type;
+  }
+
+  set type(t:ExperimentType) {
+    this._type = t;
   }
 
 }

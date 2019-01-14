@@ -91,6 +91,9 @@ export class VerifyAudioPage implements OnInit {
       this.audioSession.addObserverForKeyPathOptionsContext(this.masterVolumeObserver, "outputVolume", NSKeyValueObservingOptions.New, null);
 
       this.page.on("navigatingFrom", (data: EventData) => {
+        if (this.playing) {
+          this.player.dispose();
+        }
         this.audioSession.removeObserverForKeyPath(this.masterVolumeObserver, "outputVolume");
       });
 
@@ -176,7 +179,7 @@ export class VerifyAudioPage implements OnInit {
         //maskerLevel: util.a2db(this.experiment.noiseThreshold) + env.maskerLevel_dB,
         maskerLevel: env.maskerLevel_dB - bg_ref_level,
         channelOptions: ChannelOptions.Diotic,
-        settingsPath: this.audioPath,
+        settingsPath: fs.knownFolders.documents().path,
         window: false,
         errorCallback: (err) => {
           console.log("error while playing: " + err);
