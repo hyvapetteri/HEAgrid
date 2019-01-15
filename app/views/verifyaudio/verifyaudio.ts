@@ -78,6 +78,8 @@ export class VerifyAudioPage implements OnInit {
       this.pickedStimulus = null;
 
       this.audioSession = AVAudioSession.sharedInstance();
+      this.audioSession.setPreferredSampleRateError(44100);
+
       this.masterVolumeObserver = new VolumeObserver();
       this.masterVolumeObserver.setCallback((obj) => {
         dialogs.alert({
@@ -129,6 +131,10 @@ export class VerifyAudioPage implements OnInit {
         });
       }
 
+      if (this.audioSession.sampleRate !== 44100) {
+        this.showError("Wrong sample rate! fs = " + this.audioSession.sampleRate);
+      }
+
       this.submitted = true;
 
       let xcoord = -1, ycoord = -1;
@@ -178,14 +184,15 @@ export class VerifyAudioPage implements OnInit {
         maskerDuration: env.verifyaudio.maskerDuration_s,
         //maskerLevel: util.a2db(this.experiment.noiseThreshold) + env.maskerLevel_dB,
         maskerLevel: env.maskerLevel_dB - bg_ref_level,
-        channelOptions: ChannelOptions.Diotic,
+        channelOptions: ChannelOptions.MonoticLeft,
         settingsPath: fs.knownFolders.documents().path,
         window: false,
         errorCallback: (err) => {
           console.log("error while playing: " + err);
         },
         debug: true,
-        compensate: true
+        compensate: true,
+        calibration: false
       };
       this.player = new GridPlayer();
 

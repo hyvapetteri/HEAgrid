@@ -4,8 +4,8 @@
 
 <StackLayout orientation="vertical" width="70%">
   <TextView editable="false" class="message" [text]="instructionText" height="100" margin="10"></TextView>
+  <Progress [value]="turns.length" maxValue="10"></Progress>
   <Button (touch)="onButtonTouch($event)" class="answerButton" [class.pressed]="answerButtonPressed" [isEnabled]="enableAnswer" [text]="answerButtonText" margin="10"></Button>
   <Button class="playButton" [text]="playButtonText" (tap)="play()" [isEnabled]="enablePlay" margin="10"></Button>
-  <Progress [value]="turns.length" maxValue="10"></Progress>
   <Label [text]="masterVolume"></Label>
 </StackLayout>

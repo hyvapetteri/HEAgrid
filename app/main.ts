@@ -12,6 +12,8 @@ applicationOn(launchEvent, (args: ApplicationEventData) => {
       console.log("Category set");
       audioSession.setModeError(AVAudioSessionModeMeasurement);
       console.log("Mode set");
+      audioSession.setPreferredSampleRateError(44100);
+      console.log("Sampling frequency set, now at " + audioSession.sampleRate);
     } catch (err) {
       console.log("Error setting AVAudioSession category & mode: " + err);
     }

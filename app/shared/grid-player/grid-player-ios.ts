@@ -32,6 +32,7 @@ export interface GridPlayerOptions {
 
   debug?: boolean;
   compensate: boolean;
+  calibration: boolean;
 }
 
 export class GridPlayer extends NSObject {
@@ -72,6 +73,9 @@ export class GridPlayer extends NSObject {
   private _stimbuffer: AVAudioPCMBuffer;
 
   private _compensate: boolean;
+  private _calibration: boolean;
+
+  private _settingsPath: string;
 
   public initialize(options: GridPlayerOptions):Promise<any> {
     this._freq = options.targetFrequency;
@@ -86,12 +90,15 @@ export class GridPlayer extends NSObject {
     this._debug = !!options.debug;
     this._window = !!options.window ? options.window : true;
     this._compensate = options.compensate;
+    this._calibration = options.calibration;
 
     this._completeCallback = options.completeCallback;
     this._errorCallback = options.errorCallback;
     this._infoCallback = options.infoCallback;
     this._dioticMasker = undefined;
     this._dioticTarget = undefined;
+
+    this._settingsPath = options.settingsPath;
 
     this.log("Settings path: " + options.settingsPath);
     const leftFilterFilePath = fs.path.join(options.settingsPath, env.leftFilterFilename);
@@ -102,14 +109,14 @@ export class GridPlayer extends NSObject {
     leftFilterData.getBytes(tmpArray);
     this._leftFilter = new Float32Array(tmpArray);
 
-    const rightFilterFilePath = fs.path.join(options.settingsPath, env.rightFilterFilename);
+    const rightFilterFilePath = fs.path.join(this._settingsPath, env.rightFilterFilename);
     const rightFilterFile = fs.File.fromPath(rightFilterFilePath);
     const rightFilterData = rightFilterFile.readSync(err => {this.log(err)});
     tmpArray = new ArrayBuffer(rightFilterData.length);
     rightFilterData.getBytes(tmpArray);
     this._rightFilter = new Float32Array(tmpArray);
 
-    const calLevelFilePath = fs.path.join(options.settingsPath, env.calLevelsFilename);
+    const calLevelFilePath = fs.path.join(this._settingsPath, env.calLevelsFilename);
     const calLevelFile = fs.File.fromPath(calLevelFilePath);
     return calLevelFile.readText().then((res) => {
       this.log("Cal level file contents: " + res);
@@ -270,7 +277,12 @@ export class GridPlayer extends NSObject {
   }
 
   private fillPCMBuffer(xval:number, yval:number) {
-    let stim = this.generateStimulus(xval, yval, "left");
+    let stim;
+    if (this._calibration) {
+      stim = this.generateCalibrationStimulus("left");
+    } else {
+      stim = this.generateStimulus(xval, yval, "left");
+    }
     this.log('fillPCMBuffer: Stim created');
     // prepare AVAudioPCMBuffer
 
@@ -288,7 +300,12 @@ export class GridPlayer extends NSObject {
     }
     if (this._chs !== ChannelOptions.MonoticLeft) {
       this.log('fillPCMBuffer: Filling also right buffer');
-      let stim_r = this.generateStimulus(xval, yval, "right");
+      let stim_r;
+      if (this._calibration) {
+        stim_r = this.generateCalibrationStimulus("right");
+      } else {
+        stim_r = this.generateStimulus(xval, yval, "right");
+      }
       let ch_data = ch_handle[1];
       for (let i = 0; i < stim.length; i++) {
         ch_data[i] = stim_r[i];
@@ -311,12 +328,13 @@ export class GridPlayer extends NSObject {
 
     let masker_output = new Float32Array(nsamples);
     if (this._hasMasker) {
-      let edge1 = 1;
+      let edge1 = 20;
       let edge2 = (1 - xval)*this._freq;
       let edge3 = (1 + xval)*this._freq;
-      let edge4 = this._fs/2 - 1;
+      //let edge4 = this._fs/2 - 1;
+      let edge4 = 10000;
       let currbw = (edge4 - edge3) + (edge2 - edge1);
-      let full_bw_dB = 10*Math.log10(this._fs/2);
+      let full_bw_dB = 10*Math.log10(edge4 - edge1);
       let bw_corr_dB = 10*Math.log10(currbw) - full_bw_dB;
 
       let bs_masker_win = new Float32Array(nsamples);
@@ -331,20 +349,18 @@ export class GridPlayer extends NSObject {
         }
 
         let bs_masker = new Float32Array(nsamples_masker);
-        if (xval > 0) {
-          // bandstop-filtering the masker
-          let n_fft = util.getNextPowerOf2(nsamples_masker);
-          console.log('NFFT: ' + n_fft);
-          let masker_fft = util.fft(masker, n_fft);
-          let bs_masker_low_fft = util.boxcar_spectrum(masker_fft, edge1, edge2, this._fs);
-          let bs_masker_high_fft = util.boxcar_spectrum(masker_fft, edge3, edge4, this._fs);
-          let bs_masker_low_padded = util.ifft(bs_masker_low_fft, n_fft);
-          let bs_masker_high_padded = util.ifft(bs_masker_high_fft, n_fft);
-          vDSP_vadd(interop.handleof(bs_masker_low_padded), 1, interop.handleof(bs_masker_high_padded), 1,
-                    interop.handleof(bs_masker), 1, nsamples_masker);
-        } else {
-          bs_masker = masker.slice();
-        }
+        
+        // bandstop-filtering the masker
+        let n_fft = util.getNextPowerOf2(nsamples_masker);
+        console.log('NFFT: ' + n_fft);
+        let masker_fft = util.fft(masker, n_fft);
+        let bs_masker_low_fft = util.boxcar_spectrum(masker_fft, edge1, edge2, this._fs);
+        let bs_masker_high_fft = util.boxcar_spectrum(masker_fft, edge3, edge4, this._fs);
+        let bs_masker_low_padded = util.ifft(bs_masker_low_fft, n_fft);
+        let bs_masker_high_padded = util.ifft(bs_masker_high_fft, n_fft);
+        vDSP_vadd(interop.handleof(bs_masker_low_padded), 1, interop.handleof(bs_masker_high_padded), 1,
+                  interop.handleof(bs_masker), 1, nsamples_masker);
+
 
         // windowing the output
         if (this._window) {
@@ -362,10 +378,10 @@ export class GridPlayer extends NSObject {
       if (this._compensate) {
         let bs_masker_win_norm;
         if (ear === "left") {
-          bs_masker_win_norm = util.calfilter(this._leftFilter, 6 + (this._leftCalLevel - this._rightCalLevel),
+          bs_masker_win_norm = util.calfilter(this._leftFilter, (this._leftCalLevel - this._rightCalLevel),
             this._maskerLevel + bw_corr_dB, bs_masker_win);
         } else if (ear === "right") {
-          bs_masker_win_norm = util.calfilter(this._rightFilter, 6,
+          bs_masker_win_norm = util.calfilter(this._rightFilter, 0,
             this._maskerLevel + bw_corr_dB, bs_masker_win);
         }
 
@@ -420,6 +436,45 @@ export class GridPlayer extends NSObject {
     this.log('Max value for output: ' + maxval.value);
 
     return output;
+  }
+
+  public generateCalibrationStimulus(ear:string):Float32Array {
+    const refToneFilePath = fs.path.join(this._settingsPath, env.refToneFilename);
+    const refToneFile = fs.File.fromPath(refToneFilePath);
+    const refToneData = refToneFile.readSync(err => {this.log(err)});
+    let tmpArray = new ArrayBuffer(refToneData.length);
+    refToneData.getBytes(tmpArray);
+    const refSignal = new Float32Array(tmpArray);
+    console.log("Calibration reference signal abs max value: " + util.max(util.abs(refSignal)));
+
+    const sweepFilePath = fs.path.join(this._settingsPath, env.sweepFilename);
+    const sweepFile = fs.File.fromPath(sweepFilePath);
+    const sweepData = sweepFile.readSync(err => {this.log(err)});
+    tmpArray = new ArrayBuffer(sweepData.length);
+    sweepData.getBytes(tmpArray);
+    const sweepSignal = new Float32Array(tmpArray);
+
+    let combined_signal = new Float32Array(refSignal.length + Math.round(2*this._fs) + sweepSignal.length);
+    combined_signal.set(refSignal);
+    combined_signal.set(sweepSignal, refSignal.length + Math.round(1.8*this._fs));
+
+    let cal_output = new Float32Array(combined_signal.length);
+
+    if (this._compensate) {
+      let cal_norm;
+      if (ear == "left") {
+        cal_norm = util.calfilter(this._leftFilter, 6 + (this._leftCalLevel - this._rightCalLevel),
+          0, combined_signal);
+      } else if (ear == "right") {
+        cal_norm = util.calfilter(this._rightFilter, 6,
+          0, combined_signal);
+      }
+      cal_output.set(cal_norm);
+    } else {
+      cal_output.set(combined_signal);
+    }
+
+    return cal_output;
   }
 
   public audioPlayerDidFinishPlayingSuccessfully(player?: any, flag?: boolean) {

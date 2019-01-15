@@ -18,10 +18,12 @@ export const audioPath = "audio";
 export const leftFilterFilename = "InvFilter.bin";
 export const rightFilterFilename = "InvFilter.bin";
 export const calLevelsFilename = "calLevels.json";
+export const refToneFilename = "ref1k_44100_24bit.bin";
+export const sweepFilename = "sweep_44100_24bit.bin";
 
-export const maskerLevel_dB = 76.44;
+export const maskerLevel_dB = 70;
 export const maxTargetLevel_dB = 0;
-export const maxGap = 0.85;
+export const maxGap = 0.55;
 
 export const threshold = {
   targetDuration_s: 0.3,
@@ -37,11 +39,11 @@ export const experiment = {
   n_alternatives: 2,
   targetDuration_s: 0.3,
   maskerDuration_s: 0.3,
-  interstimulusInterval_ms: 300,
+  interstimulusInterval_ms: 500,
   intertrialInterval_ms: 1500,
   grid_mup: 1,
   grid_ndown: 3,
-  grid_nrevs: 2,
+  grid_nrevs: 1,
   grid_nstep: 500,
   alternative_labels: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 }

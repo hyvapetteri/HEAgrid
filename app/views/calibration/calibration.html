@@ -1,27 +1,36 @@
 <ActionBar title="Verify audio levels"></ActionBar>
 
 <StackLayout orientation="vertical">
+  <Label text="Sample rate" class="p-15"></Label>
+  <Label [text]="sampleRate"></Label>
   <Label text="Choose stimulus:" class="p-15 h2" textWrap="true"></Label>
+
+  <Button text="Reference + sweep" (tap)="chooseStimulus(stimOptions.Reference, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.Reference), 'btn-primary': (pickedStimulus == stimOptions.Reference)}" textWrap="true"></Button>
+
   <Button text="Background" (tap)="chooseStimulus(stimOptions.Background, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.Background), 'btn-primary': (pickedStimulus == stimOptions.Background)}" textWrap="true"></Button>
   <StackLayout class="input-field" [visibility]="(pickedStimulus == stimOptions.Background)?'visible':'collapsed'">
     <Label class="h3 text-center" text="Background SPL"></Label>
     <TextField [(ngModel)]="spl_background" autocorrect="false" class="m-x-30 input input-border" keyboardType="number"></TextField>
   </StackLayout>
+
   <Button text="Tone reference 1 kHz" (tap)="chooseStimulus(stimOptions.Tone1k, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.Tone1k), 'btn-primary': (pickedStimulus == stimOptions.Tone1k)}" textWrap="true"></Button>
   <StackLayout class="input-field" [visibility]="(pickedStimulus == stimOptions.Tone1k)?'visible':'collapsed'">
     <Label class="h3 text-center" text="1 kHz tone SPL"></Label>
     <TextField [(ngModel)]="spl_tone1k" autocorrect="false" class="m-x-30 input input-border" keyboardType="number"></TextField>
   </StackLayout>
+
   <Button text="Tone reference 2 kHz" (tap)="chooseStimulus(stimOptions.Tone2k, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.Tone2k), 'btn-primary': (pickedStimulus == stimOptions.Tone2k)}" textWrap="true"></Button>
   <StackLayout class="input-field" [visibility]="(pickedStimulus == stimOptions.Tone2k)?'visible':'collapsed'">
     <Label class="h3 text-center" text="2 kHz tone SPL"></Label>
     <TextField [(ngModel)]="spl_tone2k" autocorrect="false" class="m-x-30 input input-border" keyboardType="number"></TextField>
   </StackLayout>
+
   <Button text="Tone reference 4 kHz" (tap)="chooseStimulus(stimOptions.Tone4k, $event)" class="btn p-15" [ngClass]="{'btn-outline': (pickedStimulus !== stimOptions.Tone4k), 'btn-primary': (pickedStimulus == stimOptions.Tone4k)}" textWrap="true"></Button>
   <StackLayout class="input-field" [visibility]="(pickedStimulus == stimOptions.Tone4k)?'visible':'collapsed'">
     <Label class="h3 text-center" text="4 kHz tone SPL"></Label>
     <TextField [(ngModel)]="spl_tone4k" autocorrect="false" class="m-x-30 input input-border" keyboardType="number"></TextField>
   </StackLayout>
+
   <Label text="Compensation"></Label>
   <Switch class="m-15" checked="true" (checkedChange)="onSwitch($event)"></Switch>
   <Button [text]="playButtonText" [isEnabled]="enablePlay" (tap)="playStimulus()" class="playButton"></Button>

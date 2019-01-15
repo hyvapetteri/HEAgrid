@@ -13,7 +13,7 @@ import { RouterExtensions } from 'nativescript-angular/router';
 import * as env from '../../config/environment';
 import * as util from '../../shared/utils';
 import { sound_config } from './experiment-config';
-import { PhasedGridTracker, BasicGridTracker, ParamGrid, GridTracker, TrialAnswer, GridTrackingStatus } from '../../shared/grid/grid';
+import { PhasedGridTracker, BasicGridTracker, ParamGrid, GridTracker, TrialAnswer, GridTrackingStatus, GridDirection } from '../../shared/grid/grid';
 import { GridPlayer, GridPlayerOptions, ChannelOptions } from '../../shared/grid-player/grid-player-ios';
 
 declare var NSURL;
@@ -81,9 +81,9 @@ export class ExperimentPage {
 
     this.volume = 1;
     console.log('Volume: ' + this.volume);
-    let tone_level_range = util.a2db(this.volume) - util.a2db(this.currentExperiment.toneThreshold);
-    tone_level_range = Math.floor(tone_level_range);
-    console.log('Tone level range: ' + tone_level_range);
+    // let tone_level_range = util.a2db(this.volume) - util.a2db(this.currentExperiment.toneThreshold);
+    // tone_level_range = Math.floor(tone_level_range);
+    // console.log('Tone level range: ' + tone_level_range);
 
     // let parameter_grid = new ParamGrid({
     //   xmin: 1,
@@ -112,14 +112,14 @@ export class ExperimentPage {
       });
     }
 
-    let min_level = targ_ref_level - 20;
-    let grid_y_min = Math.min(min_level, tone_level_range)
+    let min_level = targ_ref_level - 10;
+    // let grid_y_min = Math.min(min_level, tone_level_range)
 
     let parameter_grid = new ParamGrid({
       xmin: 0,
       xmax: env.maxGap,
       xres: 0.05,
-      ymin: env.maxTargetLevel_dB - tone_level_range,
+      ymin: env.maxTargetLevel_dB - min_level,
       ymax: env.maxTargetLevel_dB,
       yres: 3
     });
@@ -148,7 +148,7 @@ export class ExperimentPage {
       g: sparseconstrainedgrid,
       m_up: env.experiment.grid_mup,
       n_down: env.experiment.grid_ndown,
-      n_revs: 4,
+      n_revs: 3,
       n_step: 100
     }));
 
@@ -161,10 +161,13 @@ export class ExperimentPage {
     }));
 
     if (this.currentExperiment.type === ExperimentType.Grid) {
+      basegrid.initialize(0,-100,GridDirection.Right);
       grid.addPhase(basegrid);
     }
 
-    grid.initialize(0, ylim[0] + 40);
+    let start_level = targ_ref_level - 70; // 70 dB SPL
+    grid.initialize(0, env.maxTargetLevel_dB - start_level)
+    //grid.initialize(0, ylim[0] + 40);
     //grid.initialize(0, -6);
     console.log('Grid initialized');
     this.currentExperiment.grid = grid;
@@ -198,12 +201,13 @@ export class ExperimentPage {
         maskerDuration: env.experiment.maskerDuration_s,
         //maskerLevel: util.a2db(this.currentExperiment.noiseThreshold) + env.maskerLevel_dB,
         maskerLevel: env.maskerLevel_dB - bg_ref_level,
-        channelOptions: ChannelOptions.Diotic,
+        channelOptions: ChannelOptions.MonoticLeft,
         settingsPath: fs.knownFolders.documents().path,
         completeCallback: args => {
           this._ngZone.run(() => this.soundEnded(i));
         },
-        compensate: true
+        compensate: true,
+        calibration: false
       };
       promises.push(this.players[i].initialize(playerOptions));
     }
@@ -234,7 +238,7 @@ export class ExperimentPage {
       console.log('Logging to ' + logfile);
       return this.writeLog('Experiment started, subject ' + this.uid + ', vol ' + this.volume + ', freq ' + this.freq);
     }).then(() => {
-      return this.writeLog('BG ref level: ' + bg_ref_level + ', target ref level: ' + targ_ref_level + ', target threshold: ' + util.a2db(this.currentExperiment.toneThreshold) + ', masker threshold: ' + util.a2db(this.currentExperiment.noiseThreshold));
+      return this.writeLog('BG ref level: ' + bg_ref_level + ', target ref level: ' + targ_ref_level + ', masker threshold: ' + util.a2db(this.currentExperiment.noiseThreshold));
     }).then(() => {
       return this.writeLog('trial; gap; level; answer; correct');
     }).catch(err => this.showError(err));
@@ -242,6 +246,7 @@ export class ExperimentPage {
     this.page.on("navigatedTo", (data: EventData) => {
       console.log("adding volume observer");
       let audioSession = AVAudioSession.sharedInstance();
+      audioSession.setPreferredSampleRateError(44100);
       this.masterVolumeObserver = new VolumeObserver();
       this.masterVolumeObserver.setCallback((obj) => {
         dialogs.alert({
@@ -307,6 +312,10 @@ export class ExperimentPage {
   }
 
   loadSounds() {
+    let audioSession = AVAudioSession.sharedInstance();
+    if (audioSession.sampleRate !== 44100) {
+      this.showError("Wrong sample rate! fs = " + audioSession.sampleRate);
+    }
     //console.log('Loading sounds');
     let promises = [];
     this.target_idx = Math.floor(Math.random() * this.n_alternatives);
@@ -432,7 +441,7 @@ export class ExperimentPage {
   }
 
   trialEnded() {
-    this.instructionText = 'Click on the sound that had the target';
+    //this.instructionText = 'Click on the sound that had the target';
     this.enableAnswer = true;
   }
 

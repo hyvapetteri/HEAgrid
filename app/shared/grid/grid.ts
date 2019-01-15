@@ -80,7 +80,11 @@ export class PhasedGridTracker implements GridTracker {
       this.activeTrackerIdx += 1;
       if (this.activeTrackerIdx < this.trackers.length) {
         this._activeTracker = this.trackers[this.activeTrackerIdx];
-        this._activeTracker.initialize(pos[0], pos[1], status.direction);
+        let direction = status.direction;
+        if (!!this._activeTracker.getStatus()) {
+          direction = this._activeTracker.getStatus().direction;
+        }
+        this._activeTracker.initialize(pos[0], pos[1], direction);
       } else {
         this.finished = true;
       }

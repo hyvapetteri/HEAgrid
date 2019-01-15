@@ -47,7 +47,7 @@ export class ExperimentListPage {
         let counter_avg = 0;
         let sum_avg = 0;
         for (let i = history.length - 1; i >= 0; i--) {
-          if (history[i].reversal) {
+          if (history[i].reversal && (history[i].xval == 0)) {
             sum_avg += history[i].yval;
             counter_avg += 1;
             if (counter_avg == n_avg) {

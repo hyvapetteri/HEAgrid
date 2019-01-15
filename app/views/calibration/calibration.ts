@@ -21,7 +21,8 @@ export enum CalibrationOptions {
   Background = "background",
   Tone1k = "tone1k",
   Tone2k = "tone2k",
-  Tone4k = "tone4k"
+  Tone4k = "tone4k",
+  Reference = "reference"
 }
 
 @Component({
@@ -54,6 +55,8 @@ export class CalibrationPage implements OnInit {
 
     private compensateHeadphones: boolean;
 
+    private sampleRate: number;
+
     constructor(private sessionProvider: SessionProvider,
                 private routerExtensions: RouterExtensions,
                 private page: Page) {
@@ -83,6 +86,8 @@ export class CalibrationPage implements OnInit {
       this.pickedStimulus = null;
 
       this.audioSession = AVAudioSession.sharedInstance();
+      this.audioSession.setPreferredSampleRateError(44100);
+      this.sampleRate = this.audioSession.sampleRate;
       this.masterVolumeObserver = new VolumeObserver();
       this.masterVolumeObserver.setCallback((obj) => {
         dialogs.alert({
@@ -167,14 +172,15 @@ export class CalibrationPage implements OnInit {
         targetDuration: env.verifyaudio.targetDuration_s,
         maskerDuration: env.verifyaudio.maskerDuration_s,
         maskerLevel: 0,
-        channelOptions: ChannelOptions.Diotic,
+        channelOptions: ChannelOptions.MonoticLeft,
         settingsPath: fs.knownFolders.documents().path,
         window: false,
         errorCallback: (err) => {
           console.log("error while playing: " + err);
         },
         debug: true,
-        compensate: this.compensateHeadphones
+        compensate: this.compensateHeadphones,
+        calibration: false
       };
 
       this.player = new GridPlayer();
@@ -198,6 +204,11 @@ export class CalibrationPage implements OnInit {
         case CalibrationOptions.Tone4k: {
           playerOptions.targetFrequency = 4000;
           playTarget = true;
+          break;
+        }
+        case CalibrationOptions.Reference: {
+          playerOptions.calibration = true;
+          playerOptions.loop = false;
           break;
         }
         default: {

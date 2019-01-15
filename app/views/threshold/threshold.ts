@@ -51,7 +51,7 @@ export class ThresholdPage {
               private _ngZone: NgZone,
               private page: Page) {
 
-    this.titleText = "Threshold 1/2";
+    this.titleText = "Hearing threshold";
 
     this.enablePlay = false;
     this.enableAnswer = false;
@@ -67,6 +67,7 @@ export class ThresholdPage {
 
       console.log("adding volume observer");
       let audioSession = AVAudioSession.sharedInstance();
+      audioSession.setPreferredSampleRateError(44100);
       this.masterVolumeObserver = new VolumeObserver();
       this.masterVolumeObserver.setCallback((obj) => {
         this.player.pause().then(() => {
@@ -128,10 +129,11 @@ export class ThresholdPage {
       targetDuration: env.threshold.targetDuration_s,
       maskerDuration: env.threshold.maskerDuration_s,
       maskerLevel: 0,
-      channelOptions: ChannelOptions.Diotic,
+      channelOptions: ChannelOptions.MonoticLeft,
       settingsPath: fs.knownFolders.documents().path,
       debug: true,
-      compensate: true
+      compensate: true,
+      calibration: false
     }
     this.player = new GridPlayer();
 
@@ -221,11 +223,12 @@ export class ThresholdPage {
 
     if (this.experiment.status == ExperimentStatus.NoiseThreshold) {
       this.experiment.noiseThreshold = avg_threshold;
-      this.experiment.status = ExperimentStatus.ToneThreshold;
-      return this.setup().then(() => {
-        this.instructionText = 'Now we will measure another threshold using a tone. Press play to start.'
-        this.titleText = "Threshold 2/2";
-      });
+      //this.experiment.status = ExperimentStatus.ToneThreshold;
+      return this.routerExtensions.navigate(["/experiment"], {clearHistory: true});
+      // return this.setup().then(() => {
+      //   this.instructionText = 'Now we will measure another threshold using a tone. Press play to start.'
+      //   this.titleText = "Threshold 2/2";
+      // });
     } else if (this.experiment.status == ExperimentStatus.ToneThreshold) {
       this.experiment.toneThreshold = avg_threshold;
       return this.routerExtensions.navigate(["/experiment"], {clearHistory: true});
